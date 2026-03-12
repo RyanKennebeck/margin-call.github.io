@@ -3,589 +3,829 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRE Crisis Monitor — 2027 Cliff Watch</title>
+<title>Margin Call — 2027 CRE Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
-
 :root {
-  --bg:       #0a0a0a;
-  --surface:  #111111;
-  --surface2: #181818;
-  --border:   #1e1e1e;
-  --border2:  #2a2a2a;
-  --text:     #e8e8e8;
-  --dim:      #555555;
-  --mid:      #888888;
-  --green:    #00e676;
-  --yellow:   #ffcc00;
-  --orange:   #ff7700;
-  --red:      #ff2244;
-  --blue:     #4488ff;
-  --purple:   #aa88ff;
+  --bg:        #080909;
+  --bg2:       #0d0f0f;
+  --surface:   #111414;
+  --surface2:  #161a1a;
+  --border:    #1c2020;
+  --border2:   #242a2a;
+  --text:      #dde4e4;
+  --dim:       #445050;
+  --mid:       #7a9090;
+  --green:     #00e5a0;
+  --green2:    #00b87e;
+  --yellow:    #f5c542;
+  --orange:    #f07820;
+  --red:       #e8304a;
+  --red2:      #b02438;
+  --blue:      #4a9eff;
+  --muted-red: rgba(232,48,74,.12);
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: 'Syne', sans-serif;
   font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* scanlines */
-body::after {
+/* ── GRAIN OVERLAY ── */
+body::before {
   content:'';
   position:fixed;
   inset:0;
-  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events:none;
-  z-index:9999;
+  z-index:9998;
+  opacity:.4;
 }
 
-/* ── HEADER ── */
-.header {
-  border-bottom: 1px solid var(--border2);
-  padding: 28px 40px 22px;
+/* ── HERO HEADER ── */
+.hero {
   position: relative;
+  padding: 0;
+  border-bottom: 1px solid var(--border2);
+  overflow: hidden;
+  background: var(--bg);
 }
-.header::before {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:2px;
-  background:linear-gradient(90deg,transparent,var(--green),transparent);
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 80% 50%, rgba(232,48,74,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(0,229,160,.04) 0%, transparent 60%);
 }
-.header-inner {
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:20px;
-  flex-wrap:wrap;
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
 }
-.header-label {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  letter-spacing:.2em;
-  color:var(--green);
-  text-transform:uppercase;
-  margin-bottom:6px;
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 40px;
+  padding: 48px 52px 40px;
 }
-h1 {
-  font-size:26px;
-  font-weight:600;
-  letter-spacing:-.02em;
-  line-height:1.1;
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-h1 span { color:var(--green); }
-.header-meta {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  color:var(--dim);
-  margin-top:8px;
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--green);
+  opacity: .6;
 }
-.last-updated {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:11px;
-  color:var(--mid);
-  text-align:right;
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 900;
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 20px;
 }
-.last-updated strong { color:var(--green); display:block; font-size:13px; }
+
+.hero-title em {
+  font-style: italic;
+  color: var(--red);
+}
+
+.hero-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--mid);
+  letter-spacing: .08em;
+  line-height: 1.8;
+}
+
+.hero-right {
+  text-align: right;
+  padding-bottom: 4px;
+}
+
+.hero-timestamp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--dim);
+  margin-bottom: 8px;
+  letter-spacing: .05em;
+}
+
+.hero-updated {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--green);
+  letter-spacing: -.01em;
+}
+
+.hero-updated-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
 
 /* ── SEQUENCE ── */
-.sequence-bar {
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:18px 40px;
-  overflow-x:auto;
+.sequence {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 52px;
+  overflow-x: auto;
 }
-.seq-label {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  letter-spacing:.15em;
-  color:var(--dim);
-  text-transform:uppercase;
-  margin-bottom:12px;
+
+.seq-inner {
+  display: flex;
+  align-items: stretch;
+  min-width: max-content;
 }
-.seq-steps {
-  display:flex;
-  align-items:center;
-  min-width:max-content;
-}
+
 .seq-step {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 14px;
-  border:1px solid var(--border2);
-  background:var(--surface2);
-  cursor:default;
-  transition:all .2s;
-  position:relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border);
+  position: relative;
+  cursor: default;
+  transition: background .2s;
+  min-width: 130px;
 }
-.seq-step:first-child { border-radius:4px 0 0 4px; }
-.seq-step:last-child  { border-radius:0 4px 4px 0; }
-.seq-step + .seq-step { border-left:none; }
+
+.seq-step:first-child { border-left: 1px solid var(--border); }
+
 .seq-num {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:17px;
-  font-weight:600;
-  color:var(--border2);
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--border2);
+  margin-bottom: 2px;
+  transition: color .2s;
 }
-.seq-text {
-  font-size:11px;
-  color:var(--mid);
-  white-space:nowrap;
-}
-.seq-arrow { color:var(--border2); font-size:14px; }
 
-.seq-step.step-active { border-color:var(--yellow); background:rgba(255,204,0,.06); }
-.seq-step.step-active .seq-num { color:var(--yellow); }
-.seq-step.step-active .seq-text { color:var(--text); }
-.seq-step.step-past   { border-color:rgba(0,230,118,.3); background:rgba(0,230,118,.04); }
-.seq-step.step-past   .seq-num { color:var(--green); opacity:.5; }
-.seq-step.step-danger { border-color:var(--red); background:rgba(255,34,68,.06); }
-.seq-step.step-danger .seq-num { color:var(--red); }
-.seq-step.step-danger .seq-text { color:var(--text); }
+.seq-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+  transition: color .2s;
+}
 
-/* ── STATS ROW ── */
-.stats-row {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:1px;
-  background:var(--border);
-  border-bottom:1px solid var(--border2);
+.seq-step.s-past   { background: rgba(0,229,160,.03); }
+.seq-step.s-past   .seq-num   { color: rgba(0,229,160,.3); }
+.seq-step.s-past   .seq-label { color: rgba(0,229,160,.4); }
+
+.seq-step.s-active { background: rgba(245,197,66,.05); }
+.seq-step.s-active .seq-num   { color: var(--yellow); }
+.seq-step.s-active .seq-label { color: var(--text); }
+.seq-step.s-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
 }
-.stat-box {
-  background:var(--surface);
-  padding:16px 20px;
-  text-align:center;
+
+.seq-step.s-danger { background: rgba(232,48,74,.05); }
+.seq-step.s-danger .seq-num   { color: var(--red); }
+.seq-step.s-danger .seq-label { color: var(--text); }
+.seq-step.s-danger::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--red);
 }
-.stat-num {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:28px;
-  font-weight:600;
-  line-height:1;
-  margin-bottom:4px;
+
+/* ── SCOREBOARD ── */
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-bottom: 1px solid var(--border2);
 }
-.stat-lbl {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--dim);
+
+.score-cell {
+  padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.score-cell:last-child { border-right: none; }
+
+.score-cell::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+}
+
+.score-cell.sc-safe::before   { background: var(--green); }
+.score-cell.sc-watch::before  { background: var(--yellow); }
+.score-cell.sc-danger::before { background: var(--orange); }
+.score-cell.sc-critical::before { background: var(--red); }
+.score-cell.sc-step::before   { background: var(--blue); }
+
+.score-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.score-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--dim);
 }
 
 /* ── MAIN ── */
-.main { padding:28px 40px; display:flex; flex-direction:column; gap:28px; }
+.main { padding: 40px 52px; display: flex; flex-direction: column; gap: 36px; }
 
-.section-hdr {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:14px;
-  flex-wrap:wrap;
+/* ── SECTION HEADER ── */
+.sec-hdr {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
 }
-.tier-tag {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  padding:3px 8px;
-  border:1px solid;
-  border-radius:2px;
-}
-.tag-t1 { color:var(--green);  border-color:var(--green);  background:rgba(0,230,118,.06); }
-.tag-t2 { color:var(--yellow); border-color:var(--yellow); background:rgba(255,204,0,.06); }
-.tag-t3 { color:var(--red);    border-color:var(--red);    background:rgba(255,34,68,.06); }
-.tag-ai { color:var(--purple); border-color:var(--purple); background:rgba(170,136,255,.06); }
-.tag-manual { color:var(--orange); border-color:var(--orange); background:rgba(255,119,0,.06); }
 
-.section-title { font-size:15px; font-weight:600; letter-spacing:-.01em; }
-.section-hint  { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--dim); margin-left:auto; }
+.sec-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--border2);
+  flex-shrink: 0;
+}
+
+.sec-title-group { flex: 1; }
+
+.sec-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: 1px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.tag-t1 { color: var(--green);  border-color: rgba(0,229,160,.3);  background: rgba(0,229,160,.06); }
+.tag-t2 { color: var(--yellow); border-color: rgba(245,197,66,.3); background: rgba(245,197,66,.06); }
+.tag-t3 { color: var(--red);    border-color: rgba(232,48,74,.3);  background: rgba(232,48,74,.06); }
+.tag-tl { color: var(--blue);   border-color: rgba(74,158,255,.3); background: rgba(74,158,255,.06); }
+
+.sec-name { font-size: 18px; font-weight: 700; letter-spacing: -.01em; display: block; }
+.sec-hint { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim); margin-left: auto; white-space: nowrap; }
 
 /* ── CARDS ── */
-.cards-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-  gap:14px;
-}
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
 
 .card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:4px;
-  padding:18px;
-  position:relative;
-  overflow:hidden;
-  transition:border-color .2s;
+  background: var(--surface);
+  padding: 24px;
+  position: relative;
+  transition: background .2s;
+  overflow: hidden;
 }
-.card::before {
-  content:'';
-  position:absolute;
-  top:0;left:0;
-  width:3px;height:100%;
+
+.card:hover { background: var(--surface2); }
+
+/* status glow top bar */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  transition: opacity .3s;
 }
-.card.status-safe     ::before, .card.status-safe::before     { background:var(--green); }
-.card.status-watch    ::before, .card.status-watch::before    { background:var(--yellow); }
-.card.status-danger   ::before, .card.status-danger::before   { background:var(--orange); }
-.card.status-critical ::before, .card.status-critical::before { background:var(--red); }
-.card.status-unknown  ::before, .card.status-unknown::before  { background:var(--dim); }
+.card.st-safe::after     { background: var(--green); }
+.card.st-watch::after    { background: var(--yellow); }
+.card.st-danger::after   { background: var(--orange); }
+.card.st-critical::after { background: var(--red); }
+.card.st-unknown::after  { background: var(--border2); }
 
-.card.status-critical { border-color:rgba(255,34,68,.4); }
-.card.status-danger   { border-color:rgba(255,119,0,.3); }
-.card.status-watch    { border-color:rgba(255,204,0,.25); }
-
-.card-top {
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  margin-bottom:10px;
-  gap:10px;
+.card.st-critical {
+  background: linear-gradient(180deg, rgba(232,48,74,.06) 0%, var(--surface) 60%);
+  animation: critical-pulse 3s ease-in-out infinite;
 }
-.card-name { font-size:12px; font-weight:600; flex:1; line-height:1.3; }
 
-.status-pill {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  padding:2px 7px;
-  border-radius:2px;
-  border:1px solid;
-  white-space:nowrap;
-  flex-shrink:0;
+@keyframes critical-pulse {
+  0%,100% { box-shadow: inset 0 0 0 1px rgba(232,48,74,.1); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(232,48,74,.3); }
 }
-.pill-safe     { color:var(--green);  border-color:rgba(0,230,118,.4);  background:rgba(0,230,118,.08); }
-.pill-watch    { color:var(--yellow); border-color:rgba(255,204,0,.4);  background:rgba(255,204,0,.08); }
-.pill-danger   { color:var(--orange); border-color:rgba(255,119,0,.4);  background:rgba(255,119,0,.08); }
-.pill-critical { color:var(--red);    border-color:rgba(255,34,68,.5);  background:rgba(255,34,68,.1); }
-.pill-unknown  { color:var(--dim);    border-color:var(--border2);      background:transparent; }
 
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 10px;
+}
+
+.card-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  flex: 1;
+}
+
+.status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 1px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badge-safe     { color: var(--green);  background: rgba(0,229,160,.08);  border: 1px solid rgba(0,229,160,.2); }
+.badge-safe::before { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.badge-watch    { color: var(--yellow); background: rgba(245,197,66,.08); border: 1px solid rgba(245,197,66,.2); }
+.badge-watch::before { background: var(--yellow); animation: blink 2s infinite; }
+.badge-danger   { color: var(--orange); background: rgba(240,120,32,.08); border: 1px solid rgba(240,120,32,.25); }
+.badge-danger::before { background: var(--orange); animation: blink 1s infinite; }
+.badge-critical { color: var(--red);    background: rgba(232,48,74,.12);  border: 1px solid rgba(232,48,74,.35); }
+.badge-critical::before { background: var(--red); animation: blink .5s infinite; }
+.badge-unknown  { color: var(--dim);    background: transparent;          border: 1px solid var(--border2); }
+.badge-unknown::before { background: var(--dim); }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* big value */
 .card-value-row {
-  display:flex;
-  align-items:baseline;
-  gap:6px;
-  margin-bottom:10px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
 }
+
 .card-value {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:28px;
-  font-weight:600;
-  line-height:1;
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.02em;
 }
-.card-unit  {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:12px;
-  color:var(--mid);
+
+.card-unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--mid);
+  margin-bottom: 4px;
 }
+
 .card-delta {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:11px;
-  margin-left:auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: 1px;
 }
-.delta-up   { color:var(--red);   }
-.delta-down { color:var(--green); }
-.delta-flat { color:var(--dim);   }
+.delta-up   { color: var(--red);    background: rgba(232,48,74,.08); }
+.delta-down { color: var(--green);  background: rgba(0,229,160,.08); }
+.delta-flat { color: var(--dim); }
 
-.card-desc { font-size:11px; color:var(--mid); margin-bottom:12px; line-height:1.5; }
-
-/* threshold mini bars */
-.threshold-bars { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
-.tbar-row { display:flex; align-items:center; gap:8px; }
-.tbar-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-.dot-safe     { background:var(--green); }
-.dot-watch    { background:var(--yellow); }
-.dot-danger   { background:var(--orange); }
-.dot-critical { background:var(--red); }
-.tbar-lbl {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  color:var(--dim);
-  width:48px;
-  flex-shrink:0;
-  text-transform:uppercase;
+.card-desc {
+  font-size: 11px;
+  color: var(--mid);
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
-.tbar-val {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  color:var(--mid);
-}
-.tbar-row.active .tbar-lbl { color:var(--text); }
-.tbar-row.active .tbar-val { color:var(--text); font-weight:600; }
 
+/* threshold track */
+.threshold-track { margin-bottom: 16px; }
+
+.track-bar {
+  height: 3px;
+  background: var(--border2);
+  border-radius: 2px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: visible;
+}
+
+.track-fill {
+  position: absolute;
+  left: 0; top: 0; height: 100%;
+  border-radius: 2px;
+  transition: width .6s ease;
+}
+
+.track-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tl-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.tl-dot { width: 6px; height: 6px; border-radius: 50%; }
+.tl-dot-safe     { background: var(--green); }
+.tl-dot-watch    { background: var(--yellow); }
+.tl-dot-danger   { background: var(--orange); }
+.tl-dot-critical { background: var(--red); }
+
+.tl-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.tl-item.active .tl-val { color: var(--text); font-weight: 500; }
+
+/* card footer */
 .card-footer {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding-top:10px;
-  border-top:1px solid var(--border);
-}
-.card-date { font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--dim); }
-.card-link { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--blue); text-decoration:none; }
-.card-link:hover { text-decoration:underline; }
-
-/* manual badge */
-.manual-badge {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  color:var(--orange);
-  border:1px solid rgba(255,119,0,.3);
-  padding:1px 5px;
-  border-radius:2px;
-  text-transform:uppercase;
-  letter-spacing:.08em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 
-/* LOADING STATE */
-.loading-state {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:300px;
-  flex-direction:column;
-  gap:16px;
+.card-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: .05em;
+}
+
+.card-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--blue);
+  text-decoration: none;
+  letter-spacing: .05em;
+  opacity: .7;
+  transition: opacity .15s;
+}
+.card-source:hover { opacity: 1; text-decoration: underline; }
+
+.manual-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: var(--orange);
+  border: 1px solid rgba(240,120,32,.25);
+  padding: 1px 5px;
+  border-radius: 1px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-left: 6px;
+}
+
+/* ── SETUP BANNER ── */
+.setup-banner {
+  background: rgba(74,158,255,.05);
+  border: 1px solid rgba(74,158,255,.15);
+  border-radius: 2px;
+  padding: 20px 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.setup-icon { font-size: 22px; flex-shrink: 0; }
+.setup-title { font-weight: 700; color: var(--blue); margin-bottom: 6px; font-size: 13px; }
+.setup-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 1px 6px;
+  border-radius: 2px;
+  color: var(--green);
+}
+
+/* ── TIMELINE ── */
+.timeline { border: 1px solid var(--border); overflow: hidden; }
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 110px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.tl-row:last-child { border-bottom: none; }
+.tl-row:hover { background: var(--surface2); }
+
+.tl-date {
+  padding: 18px 20px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+
+.tl-qtr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.tl-period {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mid);
+  line-height: 1.1;
+}
+
+.tl-event {
+  padding: 18px 20px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.tl-event strong { font-weight: 700; display: block; margin-bottom: 4px; font-size: 13px; letter-spacing: -.01em; }
+.tl-event p { color: var(--mid); font-size: 11px; }
+
+.tl-risk {
+  padding: 18px 16px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.risk-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  padding: 4px 10px;
+  border-radius: 1px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.rp-c { background: rgba(232,48,74,.15); color: var(--red);    border: 1px solid rgba(232,48,74,.35); }
+.rp-h { background: rgba(240,120,32,.12); color: var(--orange); border: 1px solid rgba(240,120,32,.3); }
+.rp-m { background: rgba(245,197,66,.1);  color: var(--yellow); border: 1px solid rgba(245,197,66,.25); }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border2);
+  padding: 20px 52px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--dim);
+  line-height: 1.8;
+  letter-spacing: .04em;
+}
+
+.refresh-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--green);
+  border: 1px solid rgba(0,229,160,.2);
+  background: rgba(0,229,160,.05);
+  padding: 8px 18px;
+  cursor: pointer;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: all .15s;
+  border-radius: 1px;
+}
+.refresh-btn:hover { background: rgba(0,229,160,.1); border-color: var(--green); }
+
+/* ── LOADING ── */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  flex-direction: column;
+  gap: 16px;
 }
 .spinner {
-  width:32px; height:32px;
-  border:2px solid var(--border2);
-  border-top-color:var(--green);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
+  width: 28px; height: 28px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
 }
-@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.error-state {
-  background:rgba(255,34,68,.08);
-  border:1px solid rgba(255,34,68,.3);
-  border-radius:4px;
-  padding:20px;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:12px;
-  color:var(--red);
-  margin:20px 40px;
-}
-
-/* TIMELINE */
-.timeline { border:1px solid var(--border); border-radius:4px; overflow:hidden; }
-.tl-row {
-  display:grid;
-  grid-template-columns:130px 1fr 130px;
-  border-bottom:1px solid var(--border);
-  transition:background .15s;
-}
-.tl-row:last-child { border-bottom:none; }
-.tl-row:hover { background:var(--surface2); }
-.tl-date {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  padding:14px 16px;
-  color:var(--dim);
-  border-right:1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-.tl-date strong { color:var(--mid); font-size:11px; }
-.tl-event { padding:14px 16px; font-size:12px; line-height:1.5; }
-.tl-event strong { font-weight:600; display:block; margin-bottom:3px; }
-.tl-event span   { font-size:11px; color:var(--mid); }
-.tl-risk { padding:14px 16px; border-left:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
-.risk-chip {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  padding:3px 8px;
-  border-radius:2px;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  white-space:nowrap;
-}
-.risk-c { background:rgba(255,34,68,.15);  color:var(--red);    border:1px solid rgba(255,34,68,.4); }
-.risk-h { background:rgba(255,119,0,.15);  color:var(--orange); border:1px solid rgba(255,119,0,.4); }
-.risk-m { background:rgba(255,204,0,.1);   color:var(--yellow); border:1px solid rgba(255,204,0,.3); }
-
-/* FOOTER */
-.footer {
-  border-top:1px solid var(--border);
-  padding:18px 40px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:12px;
-}
-.footer-note {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:9px;
-  color:var(--dim);
-  line-height:1.7;
-}
-.refresh-btn {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  color:var(--green);
-  border:1px solid rgba(0,230,118,.3);
-  background:rgba(0,230,118,.06);
-  padding:6px 14px;
-  border-radius:2px;
-  cursor:pointer;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  transition:all .15s;
-}
-.refresh-btn:hover { background:rgba(0,230,118,.12); border-color:var(--green); }
-
-/* NTFY SETUP BANNER */
-.setup-banner {
-  background:rgba(68,136,255,.06);
-  border:1px solid rgba(68,136,255,.25);
-  border-radius:4px;
-  padding:16px 20px;
-  font-size:12px;
-  line-height:1.6;
-  display:flex;
-  align-items:flex-start;
-  gap:14px;
-}
-.setup-icon { font-size:20px; flex-shrink:0; margin-top:2px; }
-.setup-title { font-weight:600; color:var(--blue); margin-bottom:4px; }
-.setup-code {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:11px;
-  background:var(--surface2);
-  border:1px solid var(--border2);
-  padding:2px 7px;
-  border-radius:2px;
-  color:var(--green);
-  display:inline;
+.error-box {
+  background: rgba(232,48,74,.06);
+  border: 1px solid rgba(232,48,74,.2);
+  padding: 24px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+  line-height: 1.7;
+  margin: 24px 52px;
 }
 
-@media(max-width:768px){
-  .header,.main,.sequence-bar,.footer{padding-left:16px;padding-right:16px;}
-  .cards-grid{grid-template-columns:1fr;}
-  .tl-row{grid-template-columns:1fr;}
-  .tl-date,.tl-risk{border:none;border-bottom:1px solid var(--border);}
-  .stats-row{grid-template-columns:repeat(2,1fr);}
+/* ── PAGE LOAD ANIMATION ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-border {
-  0%,100%{box-shadow:0 0 0 0 rgba(255,34,68,.3);}
-  50%{box-shadow:0 0 0 4px rgba(255,34,68,.1);}
+.hero-inner   { animation: fade-up .5s ease both; }
+.sequence     { animation: fade-up .5s .1s ease both; }
+.scoreboard   { animation: fade-up .5s .15s ease both; }
+.main > *     { animation: fade-up .5s ease both; }
+.main > *:nth-child(1) { animation-delay: .2s; }
+.main > *:nth-child(2) { animation-delay: .28s; }
+.main > *:nth-child(3) { animation-delay: .36s; }
+.main > *:nth-child(4) { animation-delay: .44s; }
+.main > *:nth-child(5) { animation-delay: .52s; }
+
+@media (max-width: 768px) {
+  .hero-inner  { padding: 32px 20px 28px; grid-template-columns: 1fr; }
+  .sequence    { padding: 0 20px; }
+  .scoreboard  { grid-template-columns: repeat(3, 1fr); }
+  .main        { padding: 24px 20px; }
+  .footer      { padding: 16px 20px; }
+  .cards       { grid-template-columns: 1fr; }
+  .tl-row      { grid-template-columns: 1fr; }
+  .tl-date,.tl-risk { border: none; border-bottom: 1px solid var(--border); }
+  .hero-right  { display: none; }
 }
-.card.status-critical { animation:pulse-border 2s infinite; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="header-inner">
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
     <div>
-      <div class="header-label">▸ CRE CRISIS MONITOR // LIVE DATA</div>
-      <h1>2027 <span>Refinancing Cliff</span><br>Watch Dashboard</h1>
-      <div class="header-meta">$2T IN CRE DEBT DUE FOR REFINANCING BY 2027 &nbsp;|&nbsp; DATA VIA FRED API &nbsp;|&nbsp; NOT FINANCIAL ADVICE</div>
+      <div class="hero-eyebrow">Systemic Risk Monitor · Live Data</div>
+      <h1 class="hero-title">Margin<br><em>Call</em></h1>
+      <div class="hero-sub">
+        $2T IN CRE DEBT MATURING BY 2027 &nbsp;·&nbsp; FRED API &nbsp;·&nbsp; DAILY UPDATES<br>
+        NOT FINANCIAL ADVICE &nbsp;·&nbsp; FOR INFORMATIONAL USE ONLY
+      </div>
     </div>
-    <div class="last-updated">
-      <strong id="lastUpdatedVal">—</strong>
-      Last Updated
+    <div class="hero-right">
+      <div class="hero-timestamp">LAST UPDATED</div>
+      <div class="hero-updated" id="lastUpdatedVal">—</div>
+      <div class="hero-updated-label">UTC</div>
     </div>
   </div>
 </header>
 
-<!-- SEQUENCE BAR -->
-<div class="sequence-bar">
-  <div class="seq-label">▸ CRISIS SEQUENCE — CURRENT POSITION</div>
-  <div class="seq-steps" id="seqSteps">
-    <!-- rendered by JS -->
-  </div>
+<!-- SEQUENCE -->
+<div class="sequence">
+  <div class="seq-inner" id="seqSteps"></div>
 </div>
 
-<!-- STATS -->
-<div class="stats-row" id="statsRow">
-  <div class="stat-box">
-    <div class="stat-num" id="statSafe" style="color:var(--green)">—</div>
-    <div class="stat-lbl">Safe</div>
+<!-- SCOREBOARD -->
+<div class="scoreboard">
+  <div class="score-cell sc-safe">
+    <div class="score-num" id="statSafe" style="color:var(--green)">—</div>
+    <div class="score-lbl">Safe</div>
   </div>
-  <div class="stat-box">
-    <div class="stat-num" id="statWatch" style="color:var(--yellow)">—</div>
-    <div class="stat-lbl">Watch</div>
+  <div class="score-cell sc-watch">
+    <div class="score-num" id="statWatch" style="color:var(--yellow)">—</div>
+    <div class="score-lbl">Watch</div>
   </div>
-  <div class="stat-box">
-    <div class="stat-num" id="statDanger" style="color:var(--orange)">—</div>
-    <div class="stat-lbl">Danger</div>
+  <div class="score-cell sc-danger">
+    <div class="score-num" id="statDanger" style="color:var(--orange)">—</div>
+    <div class="score-lbl">Danger</div>
   </div>
-  <div class="stat-box">
-    <div class="stat-num" id="statCritical" style="color:var(--red)">—</div>
-    <div class="stat-lbl">Critical</div>
+  <div class="score-cell sc-critical">
+    <div class="score-num" id="statCritical" style="color:var(--red)">—</div>
+    <div class="score-lbl">Critical</div>
   </div>
-  <div class="stat-box">
-    <div class="stat-num" id="statStep" style="color:var(--yellow)">—</div>
-    <div class="stat-lbl">Crisis Step</div>
+  <div class="score-cell sc-step">
+    <div class="score-num" id="statStep" style="color:var(--blue)">—</div>
+    <div class="score-lbl">Crisis Step</div>
   </div>
 </div>
 
 <!-- MAIN -->
 <main class="main" id="mainContent">
-  <div class="loading-state">
+  <div class="loading">
     <div class="spinner"></div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim)">LOADING DATA...</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:.1em">FETCHING DATA</div>
   </div>
 </main>
 
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-note">
-    CRE CRISIS MONITOR v2.0 — DATA UPDATES DAILY AT 07:00 UTC VIA GITHUB ACTIONS<br>
-    FRED DATA IS OFFICIAL US GOVERNMENT DATA. MANUAL INDICATORS UPDATED QUARTERLY.<br>
-    FOR INFORMATIONAL USE ONLY. NOT FINANCIAL ADVICE.
+    MARGIN CALL v2.1 &nbsp;·&nbsp; UPDATES DAILY 07:00 UTC VIA GITHUB ACTIONS<br>
+    FRED DATA IS US GOVERNMENT PUBLIC DATA &nbsp;·&nbsp; MANUAL INDICATORS UPDATED QUARTERLY
   </div>
-  <button class="refresh-btn" onclick="loadData()">↻ REFRESH</button>
+  <button class="refresh-btn" onclick="loadData()">↻ &nbsp;Refresh</button>
 </footer>
 
 <script>
-// ─────────────────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────────────────
 const DATA_URL = './data.json';
-const AUTO_REFRESH_MS = 60 * 60 * 1000; // 1 hour
-
-const TIER_SECTIONS = [
-  { tier: 1, label: 'Tier 1 — Early Warning', hint: '6–12 MONTHS OUT', tagClass: 'tag-t1', tierTag: 'TIER 1' },
-  { tier: 2, label: 'Tier 2 — Concurrent',    hint: 'CONFIRMS IT\'S REAL', tagClass: 'tag-t2', tierTag: 'TIER 2' },
-  { tier: 3, label: 'Tier 3 — Systemic',      hint: 'EVERYONE\'S PROBLEM', tagClass: 'tag-t3', tierTag: 'TIER 3' },
-];
+const AUTO_REFRESH_MS = 60 * 60 * 1000;
 
 const SEQ_STEPS = [
-  { label: 'CMBS Spreads Widen',   dangerAt: 5 },
-  { label: 'Banks Take Provisions', dangerAt: 5 },
-  { label: 'Distressed Sales Spike', dangerAt: 6 },
-  { label: 'Vacancy Confirms',      dangerAt: 6 },
-  { label: 'Credit Tightens',       dangerAt: 5 },
-  { label: 'Fed Emergency Cuts',    dangerAt: 6 },
+  'CMBS Spreads Widen',
+  'Banks Take Provisions',
+  'Distressed Sales',
+  'Vacancy Confirms',
+  'Credit Tightens',
+  'Fed Emergency Cuts',
 ];
 
-// ─────────────────────────────────────────────────────────
-// UTILITIES
-// ─────────────────────────────────────────────────────────
+const TIER_SECTIONS = [
+  { tier:1, label:'Early Warning',  hint:'FIRES 6–12 MONTHS OUT', tagClass:'tag-t1', tierTag:'Tier 1', secNum:'01' },
+  { tier:2, label:'Concurrent',     hint:'CONFIRMS IT\'S REAL',   tagClass:'tag-t2', tierTag:'Tier 2', secNum:'02' },
+  { tier:3, label:'Systemic',       hint:'EVERYONE\'S PROBLEM',   tagClass:'tag-t3', tierTag:'Tier 3', secNum:'03' },
+];
 
-function statusPillClass(status) {
-  return { safe:'pill-safe', watch:'pill-watch', danger:'pill-danger', critical:'pill-critical' }[status] || 'pill-unknown';
+// ── UTILITIES ──────────────────────────────────────────────────
+
+function statusBadgeClass(s) {
+  return { safe:'badge-safe', watch:'badge-watch', danger:'badge-danger', critical:'badge-critical' }[s] || 'badge-unknown';
 }
 
-function cardClass(status) {
-  return `status-${status || 'unknown'}`;
+function cardClass(s) { return `st-${s || 'unknown'}`; }
+
+function fmtVal(v, unit) {
+  if (v === null || v === undefined) return '—';
+  const n = parseFloat(v);
+  if (isNaN(n)) return '—';
+  return unit === 'bps' ? Math.round(n).toString() : n.toFixed(2);
 }
 
-function formatValue(value, unit) {
-  if (value === null || value === undefined) return '—';
-  const v = parseFloat(value);
-  if (isNaN(v)) return '—';
-  return unit === 'bps' ? Math.round(v).toString() : v.toFixed(2);
-}
-
-function formatDate(iso) {
+function fmtDate(iso) {
   if (!iso) return '—';
   try {
     return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
@@ -595,8 +835,7 @@ function formatDate(iso) {
 function deltaHtml(current, previous, direction) {
   if (current === null || current === undefined) return '';
   if (previous === null || previous === undefined) return '';
-  const curr = parseFloat(current);
-  const prev = parseFloat(previous);
+  const curr = parseFloat(current), prev = parseFloat(previous);
   if (isNaN(curr) || isNaN(prev) || !isFinite(curr - prev)) return '';
   const diff = curr - prev;
   if (Math.abs(diff) < 0.001) return `<span class="card-delta delta-flat">→ 0</span>`;
@@ -607,110 +846,99 @@ function deltaHtml(current, previous, direction) {
   return `<span class="card-delta ${cls}">${arrow} ${sign}${Math.abs(diff).toFixed(2)}</span>`;
 }
 
-function thresholdRows(thresholds, currentStatus, direction) {
-  const tiers = [
-    { key:'safe',     label:'SAFE',     cls:'dot-safe' },
-    { key:'watch',    label:'WATCH',    cls:'dot-watch' },
-    { key:'danger',   label:'DANGER',   cls:'dot-danger' },
-    { key:'critical', label:'CRITICAL', cls:'dot-critical' },
-  ];
-  return tiers.map(t => {
-    const val = thresholds[t.key];
-    if (val === undefined) return '';
-    const active = t.key === currentStatus ? 'active' : '';
-    const dir = direction === 'lower_is_worse'
-      ? (t.key === 'safe' ? `> ${val}` : `≤ ${val}`)
-      : `≥ ${val}`;
-    return `<div class="tbar-row ${active}">
-      <div class="tbar-dot ${t.cls}"></div>
-      <div class="tbar-lbl">${t.label}</div>
-      <div class="tbar-val">${dir}</div>
-    </div>`;
-  }).join('');
+function valueColor(status) {
+  return { safe:'var(--green)', watch:'var(--yellow)', danger:'var(--orange)', critical:'var(--red)', unknown:'var(--dim)' }[status] || 'var(--dim)';
 }
 
-// ─────────────────────────────────────────────────────────
-// RENDER CARD
-// ─────────────────────────────────────────────────────────
+// ── THRESHOLD TRACK ────────────────────────────────────────────
+
+function thresholdTrack(thresholds, status, direction) {
+  const t = thresholds || {};
+  const tiers = [
+    { key:'safe',     label:'Safe',     cls:'tl-dot-safe' },
+    { key:'watch',    label:'Watch',    cls:'tl-dot-watch' },
+    { key:'danger',   label:'Danger',   cls:'tl-dot-danger' },
+    { key:'critical', label:'Critical', cls:'tl-dot-critical' },
+  ];
+
+  const labels = tiers.map(tier => {
+    const val = t[tier.key];
+    if (val === undefined) return '';
+    const isActive = tier.key === status;
+    const dir = direction === 'lower_is_worse'
+      ? (tier.key === 'safe' ? `>${val}` : `≤${val}`)
+      : `≥${val}`;
+    return `<div class="tl-item ${isActive ? 'active' : ''}">
+      <div class="tl-dot ${tier.cls}"></div>
+      <div class="tl-val">${dir}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="threshold-track">
+    <div class="track-labels">${labels}</div>
+  </div>`;
+}
+
+// ── RENDER CARD ────────────────────────────────────────────────
 
 function renderCard(key, ind) {
-  const status      = ind.status || 'unknown';
-  const valueStr    = formatValue(ind.value, ind.unit);
-  const isManual    = ind.manual;
-  const pillClass   = statusPillClass(status);
-  const statusLabel = status.toUpperCase();
-
-  const delta = deltaHtml(ind.value, ind.previous_value, ind.direction);
-  const bars  = thresholdRows(ind.thresholds || {}, status, ind.direction);
-
-  const dateLabel = isManual
-    ? `MANUAL — UPDATED ${formatDate(ind.last_updated)}`
-    : `DATA DATE: ${formatDate(ind.date)}`;
-
-  const manualBadge = isManual ? `<span class="manual-badge">Manual</span>` : '';
-
-  // value color
-  const valueColor = {
-    safe:'var(--green)', watch:'var(--yellow)', danger:'var(--orange)', critical:'var(--red)', unknown:'var(--dim)'
-  }[status] || 'var(--dim)';
+  const status   = ind.status || 'unknown';
+  const valStr   = fmtVal(ind.value, ind.unit);
+  const badgeCls = statusBadgeClass(status);
+  const delta    = deltaHtml(ind.value, ind.previous_value, ind.direction);
+  const track    = thresholdTrack(ind.thresholds, status, ind.direction);
+  const manualTag = ind.manual ? `<span class="manual-tag">Manual</span>` : '';
+  const dateStr  = ind.manual
+    ? `Updated ${fmtDate(ind.last_updated)}`
+    : `Data: ${fmtDate(ind.date)}`;
 
   return `
-  <div class="card ${cardClass(status)}" data-key="${key}">
-    <div class="card-top">
-      <div class="card-name">${ind.name} ${manualBadge}</div>
-      <div class="status-pill ${pillClass}">${statusLabel}</div>
+  <div class="card ${cardClass(status)}">
+    <div class="card-header">
+      <div class="card-name">${ind.name}${manualTag}</div>
+      <div class="status-badge ${badgeCls}">${status.toUpperCase()}</div>
     </div>
     <div class="card-value-row">
-      <div class="card-value" style="color:${valueColor}">${valueStr}</div>
+      <div class="card-value" style="color:${valueColor(status)}">${valStr}</div>
       <div class="card-unit">${ind.unit || ''}</div>
       ${delta}
     </div>
     <div class="card-desc">${ind.description || ''}</div>
-    <div class="threshold-bars">${bars}</div>
+    ${track}
     <div class="card-footer">
-      <div class="card-date">${dateLabel}</div>
-      <a class="card-link" href="${ind.source_url || '#'}" target="_blank" rel="noopener">→ SOURCE</a>
+      <div class="card-date">${dateStr}</div>
+      <a class="card-source" href="${ind.source_url || '#'}" target="_blank" rel="noopener">→ Source</a>
     </div>
   </div>`;
 }
 
-// ─────────────────────────────────────────────────────────
-// RENDER SEQUENCE BAR
-// ─────────────────────────────────────────────────────────
+// ── RENDER SEQUENCE ────────────────────────────────────────────
 
-function renderSequence(currentStep) {
-  const container = document.getElementById('seqSteps');
-  let html = '';
-  SEQ_STEPS.forEach((s, i) => {
-    const stepNum = i + 1;
+function renderSequence(step) {
+  const el = document.getElementById('seqSteps');
+  el.innerHTML = SEQ_STEPS.map((label, i) => {
+    const n = i + 1;
     let cls = '';
-    if (stepNum < currentStep)  cls = 'step-past';
-    if (stepNum === currentStep) cls = 'step-active';
-    if (stepNum >= 5 && stepNum === currentStep) cls = 'step-danger';
-    if (stepNum >= 5 && stepNum < currentStep)   cls = 'step-danger';
-
-    const arrow = i < SEQ_STEPS.length - 1 ? `<span class="seq-arrow">›</span>` : '';
-    html += `
-      <div class="seq-step ${cls}" title="Step ${stepNum}: ${s.label}">
-        <span class="seq-num">${stepNum}</span>
-        <span class="seq-text">${s.label}</span>
-      </div>${arrow}`;
-  });
-  container.innerHTML = html;
+    if (n < step)                    cls = 's-past';
+    if (n === step && n < 5)         cls = 's-active';
+    if (n === step && n >= 5)        cls = 's-danger';
+    if (n < step  && n >= 5)         cls = 's-danger';
+    return `<div class="seq-step ${cls}">
+      <div class="seq-num">${n}</div>
+      <div class="seq-label">${label}</div>
+    </div>`;
+  }).join('');
 }
 
-// ─────────────────────────────────────────────────────────
-// RENDER STATS
-// ─────────────────────────────────────────────────────────
+// ── RENDER STATS ───────────────────────────────────────────────
 
 function renderStats(indicators, meta) {
-  let safe = 0, watch = 0, danger = 0, critical = 0;
-  Object.values(indicators).forEach(ind => {
-    const s = ind.status;
-    if (s === 'safe')     safe++;
-    if (s === 'watch')    watch++;
-    if (s === 'danger')   danger++;
-    if (s === 'critical') critical++;
+  let safe=0,watch=0,danger=0,critical=0;
+  Object.values(indicators).forEach(i => {
+    if (i.status==='safe')     safe++;
+    if (i.status==='watch')    watch++;
+    if (i.status==='danger')   danger++;
+    if (i.status==='critical') critical++;
   });
   document.getElementById('statSafe').textContent     = safe;
   document.getElementById('statWatch').textContent    = watch;
@@ -719,88 +947,78 @@ function renderStats(indicators, meta) {
   document.getElementById('statStep').textContent     = meta?.crisis_sequence_step || '—';
 }
 
-// ─────────────────────────────────────────────────────────
-// RENDER MAIN
-// ─────────────────────────────────────────────────────────
+// ── RENDER MAIN ────────────────────────────────────────────────
 
 function renderMain(data) {
   const indicators = data.indicators || {};
-  const meta       = data.meta || {};
   const main       = document.getElementById('mainContent');
-
   let html = '';
 
-  // Ntfy setup banner (show if any indicator is unknown — means first run)
+  // Setup banner if any auto indicators still unknown
   const hasUnknown = Object.values(indicators).some(i => i.status === 'unknown' && !i.manual);
   if (hasUnknown) {
-    html += `
-    <div class="setup-banner">
+    html += `<div class="setup-banner">
       <div class="setup-icon">📱</div>
       <div>
-        <div class="setup-title">SETUP: Connect Push Notifications</div>
-        <div style="color:var(--mid);font-size:12px;margin-bottom:6px;">
-          To receive alerts when thresholds are crossed, install <strong style="color:var(--text)">ntfy.sh</strong> on your phone and subscribe to your private topic.
-        </div>
-        <div style="font-size:11px;color:var(--dim);line-height:1.8">
-          1. Download the <strong style="color:var(--text)">ntfy</strong> app (iOS / Android) — free<br>
-          2. Subscribe to your topic: <span class="setup-code">NTFY_TOPIC</span> (set in GitHub Secrets)<br>
-          3. The GitHub Action will push alerts automatically every day at 07:00 UTC<br>
-          4. Manual update reminders fire on the 1st of each quarter
-        </div>
+        <div class="setup-title">Connect Push Notifications</div>
+        <div style="color:var(--mid)">Install the <strong style="color:var(--text)">ntfy</strong> app and subscribe to your private topic: <span class="setup-code">NTFY_TOPIC</span> (set in GitHub Secrets). Alerts fire automatically at 07:00 UTC daily. Manual update reminders fire quarterly.</div>
       </div>
     </div>`;
   }
 
-  // Tier sections
-  TIER_SECTIONS.forEach(section => {
-    const sectionInds = Object.entries(indicators).filter(([k, v]) => v.tier === section.tier);
-    if (!sectionInds.length) return;
+  TIER_SECTIONS.forEach(sec => {
+    const items = Object.entries(indicators).filter(([,v]) => v.tier === sec.tier);
+    if (!items.length) return;
 
-    html += `
-    <section>
-      <div class="section-hdr">
-        <span class="tier-tag ${section.tagClass}">${section.tierTag}</span>
-        <span class="section-title">${section.label}</span>
-        <span class="section-hint">${section.hint}</span>
+    html += `<section>
+      <div class="sec-hdr">
+        <div class="sec-number">${sec.secNum}</div>
+        <div class="sec-title-group">
+          <span class="sec-tag ${sec.tagClass}">${sec.tierTag}</span>
+          <span class="sec-name">${sec.label}</span>
+        </div>
+        <div class="sec-hint">${sec.hint}</div>
       </div>
-      <div class="cards-grid">
-        ${sectionInds.map(([k, v]) => renderCard(k, v)).join('')}
+      <div class="cards">
+        ${items.map(([k,v]) => renderCard(k,v)).join('')}
       </div>
     </section>`;
   });
 
   // Timeline
-  html += `
-  <section>
-    <div class="section-hdr">
-      <span class="tier-tag tag-manual">TIMELINE</span>
-      <span class="section-title">Critical Dates — 2026–2027</span>
+  html += `<section>
+    <div class="sec-hdr">
+      <div class="sec-number">04</div>
+      <div class="sec-title-group">
+        <span class="sec-tag tag-tl">Timeline</span>
+        <span class="sec-name">Critical Dates — 2026–2027</span>
+      </div>
     </div>
     <div class="timeline">
       <div class="tl-row">
-        <div class="tl-date"><span>Q2 2026</span><strong>APR–JUN</strong></div>
-        <div class="tl-event"><strong>Fed SLOOS Report + Hyperscaler Q1 Earnings</strong><span>First major data point of 2026. Watch loan tightening for CRE. Amazon, MSFT, Google, Meta FCF and CapEx guidance reveals if the AI spending narrative holds.</span></div>
-        <div class="tl-risk"><span class="risk-chip risk-h">HIGH</span></div>
+        <div class="tl-date"><div class="tl-qtr">Q2 2026</div><div class="tl-period">Apr–Jun</div></div>
+        <div class="tl-event"><strong>Fed SLOOS Report + Hyperscaler Q1 Earnings</strong><p>First major data point of 2026. Watch loan tightening for CRE. Amazon, MSFT, Google, Meta FCF and CapEx guidance reveals if the AI spending narrative holds.</p></div>
+        <div class="tl-risk"><span class="risk-pill rp-h">High</span></div>
       </div>
       <div class="tl-row">
-        <div class="tl-date"><span>Q3 2026</span><strong>JUL–SEP</strong></div>
-        <div class="tl-event"><strong>Regional Bank Stress Test Results</strong><span>Fed releases annual results. CRE exposure front and center. Any conditional pass or capital requirement raise for a regional bank = early warning of hidden losses.</span></div>
-        <div class="tl-risk"><span class="risk-chip risk-h">HIGH</span></div>
+        <div class="tl-date"><div class="tl-qtr">Q3 2026</div><div class="tl-period">Jul–Sep</div></div>
+        <div class="tl-event"><strong>Regional Bank Stress Test Results</strong><p>Fed releases annual results. CRE exposure front and center. Any conditional pass or capital raise for a regional bank = early warning of hidden losses.</p></div>
+        <div class="tl-risk"><span class="risk-pill rp-h">High</span></div>
       </div>
       <div class="tl-row">
-        <div class="tl-date"><span>Q4 2026</span><strong>OCT–DEC</strong></div>
-        <div class="tl-event"><strong>First CRE Refinancing Wave Begins</strong><span>5-year loans originated in 2021–2022 at low rates come due. Owners must refinance at higher rates or sell. Watch Trepp delinquency closely. First real test of the cliff.</span></div>
-        <div class="tl-risk"><span class="risk-chip risk-c">CRITICAL</span></div>
+        <div class="tl-date"><div class="tl-qtr">Q4 2026</div><div class="tl-period">Oct–Dec</div></div>
+        <div class="tl-event"><strong>First CRE Refinancing Wave Begins</strong><p>5-year loans originated in 2021–22 at low rates come due. Owners must refinance at dramatically higher rates or sell. First real test of the cliff.</p></div>
+        <div class="tl-risk"><span class="risk-pill rp-c">Critical</span></div>
       </div>
       <div class="tl-row">
-        <div class="tl-date"><span>Q1–Q2 2027</span><strong>CLIFF PEAK</strong></div>
-        <div class="tl-event"><strong>$2T CRE Refinancing Cliff — Primary Window</strong><span>Highest concentration of maturing CRE debt. Office, retail, multifamily that cannot refinance at new rates will default or sell. If CMBS spreads, delinquencies, and bank provisions spike simultaneously — the crisis is real.</span></div>
-        <div class="tl-risk"><span class="risk-chip risk-c">CRITICAL</span></div>
+        <div class="tl-date"><div class="tl-qtr">Q1–Q2 2027</div><div class="tl-period">Cliff Peak</div></div>
+        <div class="tl-event"><strong>$2T CRE Refinancing Cliff — Primary Window</strong><p>Highest concentration of maturing CRE debt. If CMBS spreads, delinquencies, and bank provisions spike simultaneously — the crisis is confirmed.</p></div>
+        <div class="tl-risk"><span class="risk-pill rp-c">Critical</span></div>
       </div>
       <div class="tl-row">
-        <div class="tl-date"><span>Q3–Q4 2027</span><strong>JUL–DEC</strong></div>
-        <div class="tl-event"><strong>Resolution or Contagion</strong><span>Either the Fed has cut rates enough to enable refinancing (soft landing), or distressed sales are cascading into broader credit markets. IG spread spike here = no longer a CRE crisis — it's a credit crisis.</span></div>
-        <div class="tl-risk"><span class="risk-chip risk-m">MEDIUM</span></div>
+        <div class="tl-date"><div class="tl-qtr">Q3–Q4 2027</div><div class="tl-period">Jul–Dec</div></div>
+        <div class="tl-event"><strong>Resolution or Contagion</strong><p>Either rate cuts enabled refinancing (soft landing), or distressed sales are cascading. IG spread spike here = no longer a CRE crisis — it's a credit crisis.</p></div>
+        <div class="tl-risk"><span class="risk-pill rp-m">Medium</span></div>
       </div>
     </div>
   </section>`;
@@ -808,19 +1026,14 @@ function renderMain(data) {
   main.innerHTML = html;
 }
 
-// ─────────────────────────────────────────────────────────
-// LOAD DATA
-// ─────────────────────────────────────────────────────────
+// ── LOAD ───────────────────────────────────────────────────────
 
 async function loadData() {
-  const main = document.getElementById('mainContent');
-
   try {
     const res = await fetch(`${DATA_URL}?_=${Date.now()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    // Update last updated
     const lu = data.last_updated
       ? new Date(data.last_updated).toLocaleString('en-US', {
           month:'short', day:'numeric', year:'numeric',
@@ -829,24 +1042,18 @@ async function loadData() {
       : '—';
     document.getElementById('lastUpdatedVal').textContent = lu;
 
-    // Render
     renderSequence(data.meta?.crisis_sequence_step || 1);
     renderStats(data.indicators || {}, data.meta || {});
     renderMain(data);
 
-  } catch (err) {
-    main.innerHTML = `
-      <div class="error-state">
+  } catch(err) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="error-box">
         ⚠ FAILED TO LOAD DATA: ${err.message}<br><br>
-        If you just deployed this, run the GitHub Action manually once to generate data.json.<br>
-        Go to: Actions → "CRE Crisis Monitor — Daily Update" → Run workflow
+        Run the GitHub Action manually: Actions → CRE Crisis Monitor — Daily Update → Run workflow
       </div>`;
   }
 }
-
-// ─────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────
 
 loadData();
 setInterval(loadData, AUTO_REFRESH_MS);
