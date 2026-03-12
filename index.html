@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRE Crisis Monitor — 2027 Cliff Watch</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:       #0a0a0a;
+  --surface:  #111111;
+  --surface2: #181818;
+  --border:   #1e1e1e;
+  --border2:  #2a2a2a;
+  --text:     #e8e8e8;
+  --dim:      #555555;
+  --mid:      #888888;
+  --green:    #00e676;
+  --yellow:   #ffcc00;
+  --orange:   #ff7700;
+  --red:      #ff2244;
+  --blue:     #4488ff;
+  --purple:   #aa88ff;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* scanlines */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* ── HEADER ── */
+.header {
+  border-bottom: 1px solid var(--border2);
+  padding: 28px 40px 22px;
+  position: relative;
+}
+.header::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+}
+.header-inner {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.header-label {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  letter-spacing:.2em;
+  color:var(--green);
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+h1 {
+  font-size:26px;
+  font-weight:600;
+  letter-spacing:-.02em;
+  line-height:1.1;
+}
+h1 span { color:var(--green); }
+.header-meta {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--dim);
+  margin-top:8px;
+}
+.last-updated {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--mid);
+  text-align:right;
+}
+.last-updated strong { color:var(--green); display:block; font-size:13px; }
+
+/* ── SEQUENCE ── */
+.sequence-bar {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:18px 40px;
+  overflow-x:auto;
+}
+.seq-label {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  letter-spacing:.15em;
+  color:var(--dim);
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.seq-steps {
+  display:flex;
+  align-items:center;
+  min-width:max-content;
+}
+.seq-step {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  cursor:default;
+  transition:all .2s;
+  position:relative;
+}
+.seq-step:first-child { border-radius:4px 0 0 4px; }
+.seq-step:last-child  { border-radius:0 4px 4px 0; }
+.seq-step + .seq-step { border-left:none; }
+.seq-num {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:17px;
+  font-weight:600;
+  color:var(--border2);
+}
+.seq-text {
+  font-size:11px;
+  color:var(--mid);
+  white-space:nowrap;
+}
+.seq-arrow { color:var(--border2); font-size:14px; }
+
+.seq-step.step-active { border-color:var(--yellow); background:rgba(255,204,0,.06); }
+.seq-step.step-active .seq-num { color:var(--yellow); }
+.seq-step.step-active .seq-text { color:var(--text); }
+.seq-step.step-past   { border-color:rgba(0,230,118,.3); background:rgba(0,230,118,.04); }
+.seq-step.step-past   .seq-num { color:var(--green); opacity:.5; }
+.seq-step.step-danger { border-color:var(--red); background:rgba(255,34,68,.06); }
+.seq-step.step-danger .seq-num { color:var(--red); }
+.seq-step.step-danger .seq-text { color:var(--text); }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:1px;
+  background:var(--border);
+  border-bottom:1px solid var(--border2);
+}
+.stat-box {
+  background:var(--surface);
+  padding:16px 20px;
+  text-align:center;
+}
+.stat-num {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:28px;
+  font-weight:600;
+  line-height:1;
+  margin-bottom:4px;
+}
+.stat-lbl {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+
+/* ── MAIN ── */
+.main { padding:28px 40px; display:flex; flex-direction:column; gap:28px; }
+
+.section-hdr {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+}
+.tier-tag {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding:3px 8px;
+  border:1px solid;
+  border-radius:2px;
+}
+.tag-t1 { color:var(--green);  border-color:var(--green);  background:rgba(0,230,118,.06); }
+.tag-t2 { color:var(--yellow); border-color:var(--yellow); background:rgba(255,204,0,.06); }
+.tag-t3 { color:var(--red);    border-color:var(--red);    background:rgba(255,34,68,.06); }
+.tag-ai { color:var(--purple); border-color:var(--purple); background:rgba(170,136,255,.06); }
+.tag-manual { color:var(--orange); border-color:var(--orange); background:rgba(255,119,0,.06); }
+
+.section-title { font-size:15px; font-weight:600; letter-spacing:-.01em; }
+.section-hint  { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--dim); margin-left:auto; }
+
+/* ── CARDS ── */
+.cards-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:14px;
+}
+
+.card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.card::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;
+  width:3px;height:100%;
+}
+.card.status-safe     ::before, .card.status-safe::before     { background:var(--green); }
+.card.status-watch    ::before, .card.status-watch::before    { background:var(--yellow); }
+.card.status-danger   ::before, .card.status-danger::before   { background:var(--orange); }
+.card.status-critical ::before, .card.status-critical::before { background:var(--red); }
+.card.status-unknown  ::before, .card.status-unknown::before  { background:var(--dim); }
+
+.card.status-critical { border-color:rgba(255,34,68,.4); }
+.card.status-danger   { border-color:rgba(255,119,0,.3); }
+.card.status-watch    { border-color:rgba(255,204,0,.25); }
+
+.card-top {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:10px;
+  gap:10px;
+}
+.card-name { font-size:12px; font-weight:600; flex:1; line-height:1.3; }
+
+.status-pill {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:2px 7px;
+  border-radius:2px;
+  border:1px solid;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.pill-safe     { color:var(--green);  border-color:rgba(0,230,118,.4);  background:rgba(0,230,118,.08); }
+.pill-watch    { color:var(--yellow); border-color:rgba(255,204,0,.4);  background:rgba(255,204,0,.08); }
+.pill-danger   { color:var(--orange); border-color:rgba(255,119,0,.4);  background:rgba(255,119,0,.08); }
+.pill-critical { color:var(--red);    border-color:rgba(255,34,68,.5);  background:rgba(255,34,68,.1); }
+.pill-unknown  { color:var(--dim);    border-color:var(--border2);      background:transparent; }
+
+.card-value-row {
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  margin-bottom:10px;
+}
+.card-value {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:28px;
+  font-weight:600;
+  line-height:1;
+}
+.card-unit  {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--mid);
+}
+.card-delta {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  margin-left:auto;
+}
+.delta-up   { color:var(--red);   }
+.delta-down { color:var(--green); }
+.delta-flat { color:var(--dim);   }
+
+.card-desc { font-size:11px; color:var(--mid); margin-bottom:12px; line-height:1.5; }
+
+/* threshold mini bars */
+.threshold-bars { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.tbar-row { display:flex; align-items:center; gap:8px; }
+.tbar-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.dot-safe     { background:var(--green); }
+.dot-watch    { background:var(--yellow); }
+.dot-danger   { background:var(--orange); }
+.dot-critical { background:var(--red); }
+.tbar-lbl {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--dim);
+  width:48px;
+  flex-shrink:0;
+  text-transform:uppercase;
+}
+.tbar-val {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--mid);
+}
+.tbar-row.active .tbar-lbl { color:var(--text); }
+.tbar-row.active .tbar-val { color:var(--text); font-weight:600; }
+
+.card-footer {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-top:10px;
+  border-top:1px solid var(--border);
+}
+.card-date { font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--dim); }
+.card-link { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--blue); text-decoration:none; }
+.card-link:hover { text-decoration:underline; }
+
+/* manual badge */
+.manual-badge {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--orange);
+  border:1px solid rgba(255,119,0,.3);
+  padding:1px 5px;
+  border-radius:2px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+/* LOADING STATE */
+.loading-state {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:300px;
+  flex-direction:column;
+  gap:16px;
+}
+.spinner {
+  width:32px; height:32px;
+  border:2px solid var(--border2);
+  border-top-color:var(--green);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.error-state {
+  background:rgba(255,34,68,.08);
+  border:1px solid rgba(255,34,68,.3);
+  border-radius:4px;
+  padding:20px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--red);
+  margin:20px 40px;
+}
+
+/* TIMELINE */
+.timeline { border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+.tl-row {
+  display:grid;
+  grid-template-columns:130px 1fr 130px;
+  border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.tl-row:last-child { border-bottom:none; }
+.tl-row:hover { background:var(--surface2); }
+.tl-date {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  padding:14px 16px;
+  color:var(--dim);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.tl-date strong { color:var(--mid); font-size:11px; }
+.tl-event { padding:14px 16px; font-size:12px; line-height:1.5; }
+.tl-event strong { font-weight:600; display:block; margin-bottom:3px; }
+.tl-event span   { font-size:11px; color:var(--mid); }
+.tl-risk { padding:14px 16px; border-left:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
+.risk-chip {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  padding:3px 8px;
+  border-radius:2px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+.risk-c { background:rgba(255,34,68,.15);  color:var(--red);    border:1px solid rgba(255,34,68,.4); }
+.risk-h { background:rgba(255,119,0,.15);  color:var(--orange); border:1px solid rgba(255,119,0,.4); }
+.risk-m { background:rgba(255,204,0,.1);   color:var(--yellow); border:1px solid rgba(255,204,0,.3); }
+
+/* FOOTER */
+.footer {
+  border-top:1px solid var(--border);
+  padding:18px 40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.footer-note {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--dim);
+  line-height:1.7;
+}
+.refresh-btn {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--green);
+  border:1px solid rgba(0,230,118,.3);
+  background:rgba(0,230,118,.06);
+  padding:6px 14px;
+  border-radius:2px;
+  cursor:pointer;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  transition:all .15s;
+}
+.refresh-btn:hover { background:rgba(0,230,118,.12); border-color:var(--green); }
+
+/* NTFY SETUP BANNER */
+.setup-banner {
+  background:rgba(68,136,255,.06);
+  border:1px solid rgba(68,136,255,.25);
+  border-radius:4px;
+  padding:16px 20px;
+  font-size:12px;
+  line-height:1.6;
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+}
+.setup-icon { font-size:20px; flex-shrink:0; margin-top:2px; }
+.setup-title { font-weight:600; color:var(--blue); margin-bottom:4px; }
+.setup-code {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  padding:2px 7px;
+  border-radius:2px;
+  color:var(--green);
+  display:inline;
+}
+
+@media(max-width:768px){
+  .header,.main,.sequence-bar,.footer{padding-left:16px;padding-right:16px;}
+  .cards-grid{grid-template-columns:1fr;}
+  .tl-row{grid-template-columns:1fr;}
+  .tl-date,.tl-risk{border:none;border-bottom:1px solid var(--border);}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+
+@keyframes pulse-border {
+  0%,100%{box-shadow:0 0 0 0 rgba(255,34,68,.3);}
+  50%{box-shadow:0 0 0 4px rgba(255,34,68,.1);}
+}
+.card.status-critical { animation:pulse-border 2s infinite; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <div class="header-label">▸ CRE CRISIS MONITOR // LIVE DATA</div>
+      <h1>2027 <span>Refinancing Cliff</span><br>Watch Dashboard</h1>
+      <div class="header-meta">$2T IN CRE DEBT DUE FOR REFINANCING BY 2027 &nbsp;|&nbsp; DATA VIA FRED API &nbsp;|&nbsp; NOT FINANCIAL ADVICE</div>
+    </div>
+    <div class="last-updated">
+      <strong id="lastUpdatedVal">—</strong>
+      Last Updated
+    </div>
+  </div>
+</header>
+
+<!-- SEQUENCE BAR -->
+<div class="sequence-bar">
+  <div class="seq-label">▸ CRISIS SEQUENCE — CURRENT POSITION</div>
+  <div class="seq-steps" id="seqSteps">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row" id="statsRow">
+  <div class="stat-box">
+    <div class="stat-num" id="statSafe" style="color:var(--green)">—</div>
+    <div class="stat-lbl">Safe</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="statWatch" style="color:var(--yellow)">—</div>
+    <div class="stat-lbl">Watch</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="statDanger" style="color:var(--orange)">—</div>
+    <div class="stat-lbl">Danger</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="statCritical" style="color:var(--red)">—</div>
+    <div class="stat-lbl">Critical</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="statStep" style="color:var(--yellow)">—</div>
+    <div class="stat-lbl">Crisis Step</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main" id="mainContent">
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim)">LOADING DATA...</div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-note">
+    CRE CRISIS MONITOR v2.0 — DATA UPDATES DAILY AT 07:00 UTC VIA GITHUB ACTIONS<br>
+    FRED DATA IS OFFICIAL US GOVERNMENT DATA. MANUAL INDICATORS UPDATED QUARTERLY.<br>
+    FOR INFORMATIONAL USE ONLY. NOT FINANCIAL ADVICE.
+  </div>
+  <button class="refresh-btn" onclick="loadData()">↻ REFRESH</button>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────
+const DATA_URL = './data.json';
+const AUTO_REFRESH_MS = 60 * 60 * 1000; // 1 hour
+
+const TIER_SECTIONS = [
+  { tier: 1, label: 'Tier 1 — Early Warning', hint: '6–12 MONTHS OUT', tagClass: 'tag-t1', tierTag: 'TIER 1' },
+  { tier: 2, label: 'Tier 2 — Concurrent',    hint: 'CONFIRMS IT\'S REAL', tagClass: 'tag-t2', tierTag: 'TIER 2' },
+  { tier: 3, label: 'Tier 3 — Systemic',      hint: 'EVERYONE\'S PROBLEM', tagClass: 'tag-t3', tierTag: 'TIER 3' },
+];
+
+const SEQ_STEPS = [
+  { label: 'CMBS Spreads Widen',   dangerAt: 5 },
+  { label: 'Banks Take Provisions', dangerAt: 5 },
+  { label: 'Distressed Sales Spike', dangerAt: 6 },
+  { label: 'Vacancy Confirms',      dangerAt: 6 },
+  { label: 'Credit Tightens',       dangerAt: 5 },
+  { label: 'Fed Emergency Cuts',    dangerAt: 6 },
+];
+
+// ─────────────────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────────────────
+
+function statusPillClass(status) {
+  return { safe:'pill-safe', watch:'pill-watch', danger:'pill-danger', critical:'pill-critical' }[status] || 'pill-unknown';
+}
+
+function cardClass(status) {
+  return `status-${status || 'unknown'}`;
+}
+
+function formatValue(value, unit) {
+  if (value === null || value === undefined) return '—';
+  const v = parseFloat(value);
+  if (isNaN(v)) return '—';
+  return unit === 'bps' ? Math.round(v).toString() : v.toFixed(2);
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  } catch { return iso; }
+}
+
+function deltaHtml(current, previous, direction) {
+  if (current === null || previous === null) return '';
+  const diff = parseFloat(current) - parseFloat(previous);
+  if (Math.abs(diff) < 0.001) return `<span class="card-delta delta-flat">→ 0</span>`;
+  const sign   = diff > 0 ? '+' : '';
+  const worse  = (direction === 'higher_is_worse' && diff > 0) || (direction === 'lower_is_worse' && diff < 0);
+  const cls    = worse ? 'delta-up' : 'delta-down';
+  const arrow  = diff > 0 ? '▲' : '▼';
+  return `<span class="card-delta ${cls}">${arrow} ${sign}${Math.abs(diff).toFixed(2)}</span>`;
+}
+
+function thresholdRows(thresholds, currentStatus, direction) {
+  const tiers = [
+    { key:'safe',     label:'SAFE',     cls:'dot-safe' },
+    { key:'watch',    label:'WATCH',    cls:'dot-watch' },
+    { key:'danger',   label:'DANGER',   cls:'dot-danger' },
+    { key:'critical', label:'CRITICAL', cls:'dot-critical' },
+  ];
+  return tiers.map(t => {
+    const val = thresholds[t.key];
+    if (val === undefined) return '';
+    const active = t.key === currentStatus ? 'active' : '';
+    const dir = direction === 'lower_is_worse'
+      ? (t.key === 'safe' ? `> ${val}` : `≤ ${val}`)
+      : `≥ ${val}`;
+    return `<div class="tbar-row ${active}">
+      <div class="tbar-dot ${t.cls}"></div>
+      <div class="tbar-lbl">${t.label}</div>
+      <div class="tbar-val">${dir}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// RENDER CARD
+// ─────────────────────────────────────────────────────────
+
+function renderCard(key, ind) {
+  const status      = ind.status || 'unknown';
+  const valueStr    = formatValue(ind.value, ind.unit);
+  const isManual    = ind.manual;
+  const pillClass   = statusPillClass(status);
+  const statusLabel = status.toUpperCase();
+
+  const delta = deltaHtml(ind.value, ind.previous_value, ind.direction);
+  const bars  = thresholdRows(ind.thresholds || {}, status, ind.direction);
+
+  const dateLabel = isManual
+    ? `MANUAL — UPDATED ${formatDate(ind.last_updated)}`
+    : `DATA DATE: ${formatDate(ind.date)}`;
+
+  const manualBadge = isManual ? `<span class="manual-badge">Manual</span>` : '';
+
+  // value color
+  const valueColor = {
+    safe:'var(--green)', watch:'var(--yellow)', danger:'var(--orange)', critical:'var(--red)', unknown:'var(--dim)'
+  }[status] || 'var(--dim)';
+
+  return `
+  <div class="card ${cardClass(status)}" data-key="${key}">
+    <div class="card-top">
+      <div class="card-name">${ind.name} ${manualBadge}</div>
+      <div class="status-pill ${pillClass}">${statusLabel}</div>
+    </div>
+    <div class="card-value-row">
+      <div class="card-value" style="color:${valueColor}">${valueStr}</div>
+      <div class="card-unit">${ind.unit || ''}</div>
+      ${delta}
+    </div>
+    <div class="card-desc">${ind.description || ''}</div>
+    <div class="threshold-bars">${bars}</div>
+    <div class="card-footer">
+      <div class="card-date">${dateLabel}</div>
+      <a class="card-link" href="${ind.source_url || '#'}" target="_blank" rel="noopener">→ SOURCE</a>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────
+// RENDER SEQUENCE BAR
+// ─────────────────────────────────────────────────────────
+
+function renderSequence(currentStep) {
+  const container = document.getElementById('seqSteps');
+  let html = '';
+  SEQ_STEPS.forEach((s, i) => {
+    const stepNum = i + 1;
+    let cls = '';
+    if (stepNum < currentStep)  cls = 'step-past';
+    if (stepNum === currentStep) cls = 'step-active';
+    if (stepNum >= 5 && stepNum === currentStep) cls = 'step-danger';
+    if (stepNum >= 5 && stepNum < currentStep)   cls = 'step-danger';
+
+    const arrow = i < SEQ_STEPS.length - 1 ? `<span class="seq-arrow">›</span>` : '';
+    html += `
+      <div class="seq-step ${cls}" title="Step ${stepNum}: ${s.label}">
+        <span class="seq-num">${stepNum}</span>
+        <span class="seq-text">${s.label}</span>
+      </div>${arrow}`;
+  });
+  container.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────
+// RENDER STATS
+// ─────────────────────────────────────────────────────────
+
+function renderStats(indicators, meta) {
+  let safe = 0, watch = 0, danger = 0, critical = 0;
+  Object.values(indicators).forEach(ind => {
+    const s = ind.status;
+    if (s === 'safe')     safe++;
+    if (s === 'watch')    watch++;
+    if (s === 'danger')   danger++;
+    if (s === 'critical') critical++;
+  });
+  document.getElementById('statSafe').textContent     = safe;
+  document.getElementById('statWatch').textContent    = watch;
+  document.getElementById('statDanger').textContent   = danger;
+  document.getElementById('statCritical').textContent = critical;
+  document.getElementById('statStep').textContent     = meta?.crisis_sequence_step || '—';
+}
+
+// ─────────────────────────────────────────────────────────
+// RENDER MAIN
+// ─────────────────────────────────────────────────────────
+
+function renderMain(data) {
+  const indicators = data.indicators || {};
+  const meta       = data.meta || {};
+  const main       = document.getElementById('mainContent');
+
+  let html = '';
+
+  // Ntfy setup banner (show if any indicator is unknown — means first run)
+  const hasUnknown = Object.values(indicators).some(i => i.status === 'unknown' && !i.manual);
+  if (hasUnknown) {
+    html += `
+    <div class="setup-banner">
+      <div class="setup-icon">📱</div>
+      <div>
+        <div class="setup-title">SETUP: Connect Push Notifications</div>
+        <div style="color:var(--mid);font-size:12px;margin-bottom:6px;">
+          To receive alerts when thresholds are crossed, install <strong style="color:var(--text)">ntfy.sh</strong> on your phone and subscribe to your private topic.
+        </div>
+        <div style="font-size:11px;color:var(--dim);line-height:1.8">
+          1. Download the <strong style="color:var(--text)">ntfy</strong> app (iOS / Android) — free<br>
+          2. Subscribe to your topic: <span class="setup-code">NTFY_TOPIC</span> (set in GitHub Secrets)<br>
+          3. The GitHub Action will push alerts automatically every day at 07:00 UTC<br>
+          4. Manual update reminders fire on the 1st of each quarter
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Tier sections
+  TIER_SECTIONS.forEach(section => {
+    const sectionInds = Object.entries(indicators).filter(([k, v]) => v.tier === section.tier);
+    if (!sectionInds.length) return;
+
+    html += `
+    <section>
+      <div class="section-hdr">
+        <span class="tier-tag ${section.tagClass}">${section.tierTag}</span>
+        <span class="section-title">${section.label}</span>
+        <span class="section-hint">${section.hint}</span>
+      </div>
+      <div class="cards-grid">
+        ${sectionInds.map(([k, v]) => renderCard(k, v)).join('')}
+      </div>
+    </section>`;
+  });
+
+  // Timeline
+  html += `
+  <section>
+    <div class="section-hdr">
+      <span class="tier-tag tag-manual">TIMELINE</span>
+      <span class="section-title">Critical Dates — 2026–2027</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-date"><span>Q2 2026</span><strong>APR–JUN</strong></div>
+        <div class="tl-event"><strong>Fed SLOOS Report + Hyperscaler Q1 Earnings</strong><span>First major data point of 2026. Watch loan tightening for CRE. Amazon, MSFT, Google, Meta FCF and CapEx guidance reveals if the AI spending narrative holds.</span></div>
+        <div class="tl-risk"><span class="risk-chip risk-h">HIGH</span></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date"><span>Q3 2026</span><strong>JUL–SEP</strong></div>
+        <div class="tl-event"><strong>Regional Bank Stress Test Results</strong><span>Fed releases annual results. CRE exposure front and center. Any conditional pass or capital requirement raise for a regional bank = early warning of hidden losses.</span></div>
+        <div class="tl-risk"><span class="risk-chip risk-h">HIGH</span></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date"><span>Q4 2026</span><strong>OCT–DEC</strong></div>
+        <div class="tl-event"><strong>First CRE Refinancing Wave Begins</strong><span>5-year loans originated in 2021–2022 at low rates come due. Owners must refinance at higher rates or sell. Watch Trepp delinquency closely. First real test of the cliff.</span></div>
+        <div class="tl-risk"><span class="risk-chip risk-c">CRITICAL</span></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date"><span>Q1–Q2 2027</span><strong>CLIFF PEAK</strong></div>
+        <div class="tl-event"><strong>$2T CRE Refinancing Cliff — Primary Window</strong><span>Highest concentration of maturing CRE debt. Office, retail, multifamily that cannot refinance at new rates will default or sell. If CMBS spreads, delinquencies, and bank provisions spike simultaneously — the crisis is real.</span></div>
+        <div class="tl-risk"><span class="risk-chip risk-c">CRITICAL</span></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date"><span>Q3–Q4 2027</span><strong>JUL–DEC</strong></div>
+        <div class="tl-event"><strong>Resolution or Contagion</strong><span>Either the Fed has cut rates enough to enable refinancing (soft landing), or distressed sales are cascading into broader credit markets. IG spread spike here = no longer a CRE crisis — it's a credit crisis.</span></div>
+        <div class="tl-risk"><span class="risk-chip risk-m">MEDIUM</span></div>
+      </div>
+    </div>
+  </section>`;
+
+  main.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────
+// LOAD DATA
+// ─────────────────────────────────────────────────────────
+
+async function loadData() {
+  const main = document.getElementById('mainContent');
+
+  try {
+    const res = await fetch(`${DATA_URL}?_=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Update last updated
+    const lu = data.last_updated
+      ? new Date(data.last_updated).toLocaleString('en-US', {
+          month:'short', day:'numeric', year:'numeric',
+          hour:'2-digit', minute:'2-digit', timeZoneName:'short'
+        })
+      : '—';
+    document.getElementById('lastUpdatedVal').textContent = lu;
+
+    // Render
+    renderSequence(data.meta?.crisis_sequence_step || 1);
+    renderStats(data.indicators || {}, data.meta || {});
+    renderMain(data);
+
+  } catch (err) {
+    main.innerHTML = `
+      <div class="error-state">
+        ⚠ FAILED TO LOAD DATA: ${err.message}<br><br>
+        If you just deployed this, run the GitHub Action manually once to generate data.json.<br>
+        Go to: Actions → "CRE Crisis Monitor — Daily Update" → Run workflow
+      </div>`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
+
+loadData();
+setInterval(loadData, AUTO_REFRESH_MS);
+</script>
+</body>
+</html>
