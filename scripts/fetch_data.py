@@ -88,10 +88,10 @@ INDICATORS = {
     },
 
     "auto_delinquency": {
-        "name": "Auto Loan Delinquency Rate (90+ days)",
-        "fred_series": "DRAUTACBS",
+        "name": "Consumer Loan Delinquency Rate",
+        "fred_series": "DRCLACBS",
         "unit": "%",
-        "description": "% of auto loans 90+ days past due. Consumer stress leading indicator.",
+        "description": "% of consumer loans past due at commercial banks. Broad consumer stress indicator.",
         "tier": 2,
         "tier_label": "Concurrent",
         "direction": "higher_is_worse",
@@ -102,7 +102,7 @@ INDICATORS = {
             "critical": 7.0,
         },
         "manual": False,
-        "source_url": "https://fred.stlouisfed.org/series/DRAUTACBS",
+        "source_url": "https://fred.stlouisfed.org/series/DRCLACBS",
     },
 
     "yield_curve": {
@@ -327,7 +327,7 @@ def fetch_fred_series(series_id: str, is_yoy: bool = False) -> dict:
             "value":          yoy_value if is_yoy else round(value, 2),
             "raw_value":      round(value, 2),
             "date":           date,
-            "previous_value": round(prev_value, 2) if prev_value else None,
+            "previous_value": None if is_yoy else (round(prev_value, 2) if prev_value else None),
         }
     except Exception as e:
         return {"value": None, "date": None, "previous_value": None, "error": str(e)}
